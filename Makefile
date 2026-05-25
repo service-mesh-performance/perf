@@ -1,26 +1,26 @@
-jekyll=bundle exec jekyll
-REPO_ROOT := $(shell git rev-parse --show-toplevel)
-ARTIFACTHUB_SCRIPT_DIR := $(REPO_ROOT)/assets/scripts
+SITE_DIR := _site
 
-site:
-	bundle install; $(jekyll) serve --drafts --config _config.yml
+.PHONY: site build clean
 
-site-no-incremental:
-	bundle install; $(jekyll) serve --drafts --livereload --config _config.yml
+site: build
+	cd $(SITE_DIR) && python3 -m http.server 4000
 
-build:
-	$(jekyll) build --drafts
+build: clean
+	mkdir -p $(SITE_DIR)
+	find . -mindepth 1 -maxdepth 1 \
+		! -name '.git' \
+		! -name '.github' \
+		! -name '.jekyll-cache' \
+		! -name '.vscode' \
+		! -name 'Gemfile' \
+		! -name 'Gemfile.lock' \
+		! -name 'LICENSE' \
+		! -name 'Makefile' \
+		! -name 'README.md' \
+		! -name '_site' \
+		! -name '.gitignore' \
+		-exec cp -R {} $(SITE_DIR)/ \;
+	touch $(SITE_DIR)/.nojekyll
 
-docker:
-	docker run --name meshery-io -d --rm -p 4000:4000 -v `pwd`:"/srv/jekyll" jekyll/jekyll:latest bash -c "bundle install; jekyll serve --drafts --livereload"
-
-docker-stop:
-	docker stop meshery-io
-
-.PHONY: clean
 clean:
-	rm -rf _site
-	rm -rf .jekyll-metadata
-	rm -rf .jekyll-cache
-	docker stop meshery-io || true
-	docker rm meshery-io || true
+	rm -rf $(SITE_DIR)
