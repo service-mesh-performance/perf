@@ -4,14 +4,9 @@
   "package_url": "https://github.com/meshery-extensions/meshery-extensions-packages/releases/download/v0.8.157-1/provider-meshery.tar.gz",
   "provider_name": "Meshery",
   "provider_description": [
-    "User Identity with Multi-tenancy: Orgs, Teams, Users",
-    "Environments, Workspaces, and private catalogs",
-    "GitHub integration and design snapshots",
-    "Performance test profiles and result history",
-    "Learning Academy and Challenges",
-    "Free, Team, and Enterprise subscription plans"
+    "Intel Performance Platform for use on internal networks in assessment of cloud native traffic with a specific focus on efficiencies in the configuraiton of Envoy, Nighthawk, Meshery and Intel hardware tuning."
   ],
-  "provider_url": "https://cloud.meshery.io",
+  "provider_url": "https://perf.smp-spec.io",
   "extensions": {
     "navigator": [
       {
@@ -51,13 +46,13 @@
         "path": "provider/navigator/meshmap/graphql/plugin.so",
         "type": "backend"
       }
-    ],
+    ]
     "account": [
       {
         "title": "Cloud Account",
         "on_click_callback": 1,
         "href": {
-          "uri": "https://cloud.meshery.io/account/profile",
+          "uri": "https://perf.smp-spec.io/account/profile",
           "external": true
         },
         "link": true,
@@ -68,7 +63,7 @@
         "title": "Cloud Catalog",
         "on_click_callback": 1,
         "href": {
-          "uri": "https://cloud.meshery.io/catalog",
+          "uri": "https://perf.smp-spec.io/catalog",
           "external": true
         },
         "link": true,
@@ -79,7 +74,7 @@
         "title": "Cloud Dashboard",
         "on_click_callback": 1,
         "href": {
-          "uri": "https://cloud.meshery.io",
+          "uri": "https://perf.smp-spec.io",
           "external": true
         },
         "link": true,
