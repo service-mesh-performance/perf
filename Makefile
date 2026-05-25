@@ -6,7 +6,7 @@ site:
 	bundle install; $(jekyll) serve --drafts --config _config.yml
 
 site-no-incremental:
-	bundle install; $(jekyll) serve --drafts --livereload --config _config_dev.yml
+	bundle install; $(jekyll) serve --drafts --livereload --config _config.yml
 
 build:
 	$(jekyll) build --drafts
@@ -17,18 +17,6 @@ docker:
 docker-stop:
 	docker stop meshery-io
 
-docker-logs:
-	docker logs -f meshery-io
-
-.PHONY: helm-repo-update
-helm-repo-update:
-	helm repo index charts
-
-.PHONY: artifacthub-artifacts
-artifacthub-artifacts:
-	cd $(ARTIFACTHUB_SCRIPT_DIR); go run hub.go
-
-# Clean target to remove generated files
 .PHONY: clean
 clean:
 	rm -rf _site
