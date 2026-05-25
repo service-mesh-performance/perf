@@ -46,7 +46,7 @@
         "path": "provider/navigator/meshmap/graphql/plugin.so",
         "type": "backend"
       }
-    ]
+    ],
     "account": [
       {
         "title": "Cloud Account",
