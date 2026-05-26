@@ -2,7 +2,7 @@
   "provider_type": "remote",
   "package_version": "v0.8.157-1",
   "package_url": "https://github.com/meshery-extensions/meshery-extensions-packages/releases/download/v0.8.157-1/provider-meshery.tar.gz",
-  "provider_name": "Meshery",
+  "provider_name": "Intel Perf Platform",
   "provider_description": [
     "Intel Performance Platform for use on internal networks in assessment of cloud native traffic with a specific focus on efficiencies in the configuraiton of Envoy, Nighthawk, Meshery and Intel hardware tuning."
   ],
@@ -193,10 +193,6 @@
     {
       "feature": "workspaces",
       "endpoint": "/api/workspaces"
-    },
-    {
-      "feature": "persist-anonymous-user",
-      "endpoint": "/api/identity/users/anonymous"
     }
   ],
   "redirects": {
