@@ -8,6 +8,6 @@ Access to this environment is restricted to internal Intel networks. This is sub
 
 Note: _Using WASM HTTP parsing filters for Envoy, this site is dynamically rewritten per page load._
 
-### Contributors
+### Contributor
 
-This repository is a static GitHub Pages site. It does not require Jekyll, Bundler, or a local Ruby toolchain to develop or deploy.
+This repository serves as a gateway to the Intel performance platform a la Meshery remote provider APIs.
