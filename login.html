@@ -8,17 +8,26 @@
         :root {
             /* Intel Branding Colors */
             --intel-blue: #0068B5;
+            --intel-blue-hover: #00558f;
             --bg-color: #f4f5f7;
             --card-bg: #ffffff;
             --text-main: #333333;
             --text-muted: #6b7280;
-            
+
             /* Warning Colors */
             --warning-bg: #fee2e2;
             --warning-text: #991b1b;
             --warning-border: #ef4444;
-            
-            /* Disabled Input Colors */
+
+            /* Info Colors (verification in progress) */
+            --info-bg: #e0f2fe;
+            --info-text: #075985;
+            --info-border: #0284c7;
+
+            /* Input Colors */
+            --enabled-bg: #ffffff;
+            --enabled-text: #111827;
+            --enabled-border: #cbd5e1;
             --disabled-bg: #f3f4f6;
             --disabled-text: #9ca3af;
             --disabled-border: #d1d5db;
@@ -63,22 +72,34 @@
             margin: 0 0 25px 0;
         }
 
-        .warning-box {
-            background-color: var(--warning-bg);
-            color: var(--warning-text);
-            border-left: 4px solid var(--warning-border);
-            padding: 12px 16px;
+        .status-box {
             border-radius: 4px;
+            padding: 12px 16px;
             font-size: 0.85rem;
             margin-bottom: 25px;
             text-align: left;
             line-height: 1.5;
         }
 
-        .warning-box strong {
+        .status-box strong {
             display: block;
             margin-bottom: 4px;
             font-size: 0.9rem;
+        }
+
+        .status-box.info {
+            background-color: var(--info-bg);
+            color: var(--info-text);
+            border-left: 4px solid var(--info-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-box.warning {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            border-left: 4px solid var(--warning-border);
         }
 
         .form-group {
@@ -97,19 +118,31 @@
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--disabled-border);
+            border: 1px solid var(--enabled-border);
             border-radius: 4px;
             box-sizing: border-box;
-            background-color: var(--disabled-bg);
-            color: var(--disabled-text);
+            background-color: var(--enabled-bg);
+            color: var(--enabled-text);
             font-size: 0.95rem;
-            cursor: not-allowed;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: 2px solid rgba(0, 104, 181, 0.25);
+            outline-offset: 0;
+            border-color: var(--intel-blue);
         }
 
         .form-group input::placeholder {
-            color: var(--disabled-text);
+            color: var(--text-muted);
             opacity: 0.7;
+        }
+
+        .form-group input:disabled {
+            background-color: var(--disabled-bg);
+            color: var(--disabled-text);
+            border-color: var(--disabled-border);
+            cursor: not-allowed;
         }
 
         button {
@@ -121,40 +154,133 @@
             border-radius: 4px;
             font-size: 1rem;
             font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        button:not(:disabled):hover,
+        button:not(:disabled):focus {
+            background-color: var(--intel-blue-hover);
+        }
+
+        button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            margin-top: 10px;
-            transition: opacity 0.2s ease;
+        }
+
+        .spinner {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(2, 132, 199, 0.25);
+            border-top-color: var(--info-border);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spinner {
+                animation: none;
+            }
+        }
+
+        [hidden] {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
 <div class="login-container">
-    <img src="/intel.png"  alt="Intel Logo" class="logo">
-    
+    <img src="/intel.png" alt="Intel Logo" class="logo">
+
     <h1>Intel Performance Platform</h1>
     <p class="subtitle">Meshery Remote Provider</p>
 
-    <div class="warning-box">
+    <div id="status-checking" class="status-box info" hidden role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>
+            <strong>Verifying network access</strong>
+            Confirming that your network is approved for this Meshery remote provider...
+        </span>
+    </div>
+
+    <div id="status-restricted" class="status-box warning" hidden role="alert">
         <strong>⚠️ Access Restricted</strong>
         Access to this Meshery remote provider is strictly limited to Intel-internal networks only. Authentication is currently disabled.
     </div>
 
-    <form onsubmit="event.preventDefault();">
+    <form id="login-form">
         <div class="form-group">
             <label for="username">Corporate Email</label>
-            <input type="text" id="username" name="username" placeholder="user@intel.com" disabled>
+            <input type="text" id="username" name="username" placeholder="user@intel.com" autocomplete="username">
         </div>
-        
+
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="••••••••" disabled>
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
         </div>
-        
-        <button type="submit" disabled>Sign In</button>
+
+        <button type="submit" id="submit-btn">Sign In</button>
     </form>
 </div>
+
+<script>
+    (function () {
+        var ENABLED_WINDOW_MS = 5000;
+        var VERIFYING_DURATION_MS = 3000;
+
+        var inputs = document.querySelectorAll('#username, #password');
+        var submitBtn = document.getElementById('submit-btn');
+        var form = document.getElementById('login-form');
+        var checkingBox = document.getElementById('status-checking');
+        var restrictedBox = document.getElementById('status-restricted');
+
+        var enabledTimer = null;
+        var verifyingTimer = null;
+        var phase = 'enabled';
+
+        function lockForm() {
+            inputs.forEach(function (el) { el.disabled = true; });
+            submitBtn.disabled = true;
+        }
+
+        function startVerifying() {
+            if (phase !== 'enabled') return;
+            phase = 'verifying';
+            if (enabledTimer !== null) {
+                window.clearTimeout(enabledTimer);
+                enabledTimer = null;
+            }
+            lockForm();
+            submitBtn.textContent = 'Verifying...';
+            checkingBox.hidden = false;
+            verifyingTimer = window.setTimeout(showRestricted, VERIFYING_DURATION_MS);
+        }
+
+        function showRestricted() {
+            phase = 'restricted';
+            verifyingTimer = null;
+            checkingBox.hidden = true;
+            submitBtn.textContent = 'Sign In';
+            restrictedBox.hidden = false;
+        }
+
+        // Submitting during the enabled window jumps straight to verifying so
+        // the user gets immediate feedback instead of waiting out the timer.
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            startVerifying();
+        });
+
+        enabledTimer = window.setTimeout(startVerifying, ENABLED_WINDOW_MS);
+    })();
+</script>
 
 </body>
 </html>
